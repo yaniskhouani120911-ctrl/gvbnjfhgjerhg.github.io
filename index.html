@@ -770,6 +770,16 @@ document.querySelectorAll('.work-media').forEach((mediaEl) => {
 
 loadTrack(0, false);
 
+// Browsers block audio autoplay on page load — start music on the
+// visitor's very first click anywhere on the page instead, so it
+// feels automatic without violating autoplay policy.
+document.addEventListener('click', function startOnFirstClick() {
+  if (!playing) {
+    audioEl.play().catch(() => {});
+  }
+  document.removeEventListener('click', startOnFirstClick);
+}, { once: true });
+
 musicBtn.addEventListener('click', () => {
   if (!playing) {
     audioEl.play().catch(() => {});
