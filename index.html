@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gvbnjfhgjerhg — Discord Bot Developer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Sora:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #060708;
+    --surface: rgba(18,20,24,0.75);
+    --surface-solid: #121418;
+    --border: #24272d;
+    --text: #ECEDEF;
+    --text-dim: #8A8F98;
+    --c1: #F2A93B;
+    --c2: #9C8CFF;
+    --c3: #57D2C7;
+    --danger: #ff5f6d;
+    --ok: #57D28C;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: none;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--c1); color: #0B0E13; }
+
+  @media (hover: none), (pointer: coarse) {
+    body { cursor: auto; }
+    #cursor-ring, #cursor-dot { display: none !important; }
+  }
+
+  #cursor-dot, #cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+  }
+  #cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--text);
+    transition: opacity 0.2s ease;
+  }
+  #cursor-ring {
+    width: 34px; height: 34px;
+    border: 1.5px solid var(--text-dim);
+    transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease, background 0.2s ease, border-width 0.2s ease;
+  }
+  #cursor-ring.active {
+    width: 54px; height: 54px;
+    border-width: 2px;
+    border-image: conic-gradient(from 0deg, var(--c1), var(--c2), var(--c3), var(--c1)) 1;
+    animation: spin 2.4s linear infinite;
+    background: radial-gradient(circle, rgba(156,140,255,0.08), transparent 70%);
+  }
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+  #rain-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(6,7,8,0) 0%, var(--bg) 80%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 2; }
+
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(6,7,8,0.7);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .navwrap {
+    max-width: 1040px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px;
+  }
+  .logo-dot {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+  }
+  .navlinks { display: flex; gap: 34px; font-size: 13px; letter-spacing: 0.5px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
+  .navlinks a.hoverable:hover { color: var(--text); }
+
+  .hero { padding: 130px 0 90px; position: relative; z-index: 2; }
+  .glow-title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: clamp(48px, 9vw, 92px);
+    letter-spacing: -2px;
+    color: #fff;
+    text-shadow: 0 0 22px rgba(255,255,255,0.35), 0 0 60px rgba(156,140,255,0.15);
+  }
+  .hero p.sub {
+    margin-top: 18px;
+    font-size: 18px;
+    color: var(--text-dim);
+    max-width: 520px;
+  }
+  .hero p.sub .cursor-blink {
+    display: inline-block; width: 8px; height: 18px;
+    background: var(--c1);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .intro-line {
+    margin-top: 24px;
+    max-width: 480px;
+    font-size: 14.5px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    border-left: 2px solid var(--border);
+    padding-left: 16px;
+  }
+
+  .section-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    height: 1px;
+  }
+  .section-divider .line {
+    width: min(70%, 560px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+  }
+  .section-divider .dot {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--c1), var(--c2));
+    box-shadow: 0 0 12px var(--c2), 0 0 24px var(--c1);
+    animation: dot-pulse 3.2s ease-in-out infinite;
+  }
+  @keyframes dot-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.8); opacity: 1; }
+  }
+
+  section { padding: 90px 0; position: relative; z-index: 2; }
+  .sec-title {
+    font-size: clamp(30px, 4.5vw, 42px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+  }
+  .sec-underline {
+    width: 240px; height: 3px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--c1), var(--c3), var(--c2));
+    margin-bottom: 44px;
+  }
+
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes rotate-angle { to { --angle: 360deg; } }
+
+  .glow-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 30px;
+    position: relative;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+    backdrop-filter: blur(6px);
+  }
+  .glow-card::before {
+    content: "";
+    position: absolute; inset: -1px;
+    border-radius: 12px;
+    padding: 1px;
+    background: conic-gradient(from var(--angle), var(--c1), var(--c3), var(--c2), var(--c1));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: rotate-angle 3s linear infinite;
+    pointer-events: none;
+  }
+  .glow-card:hover::before { opacity: 1; }
+  .glow-card:hover { transform: translateY(-3px); }
+
+  .expertise-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .glow-card h3 { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 18px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+  .cap-row { display: flex; gap: 10px; margin-bottom: 14px; font-size: 14.5px; align-items: baseline; }
+  .cap-row .mark { font-weight: 800; flex-shrink: 0; width: 16px; }
+  .cap-row.can .mark { color: var(--ok); }
+  .cap-row.decent .mark { color: var(--c1); }
+  .cap-row.cannot .mark { color: var(--danger); }
+  .cap-row b { color: var(--text); }
+  .cap-row span.detail { color: var(--text-dim); }
+
+  .tag-group { margin-bottom: 22px; }
+  .tag-group:last-child { margin-bottom: 0; }
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .tag-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 6px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .tag-pill.hoverable:hover { border-color: var(--c3); color: var(--text); }
+
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .work-card {
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+    position: relative;
+  }
+  .work-card::before {
+    content: "";
+    position: absolute; inset: -1px;
+    border-radius: 12px;
+    padding: 1px;
+    background: conic-gradient(from var(--angle), var(--c1), var(--c3), var(--c2), var(--c1));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: rotate-angle 3s linear infinite;
+    pointer-events: none;
+  }
+  .work-card:hover::before { opacity: 1; }
+  .work-card:hover { transform: translateY(-3px); }
+  .work-media {
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #15181d, #0c0e11);
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .work-media img, .work-media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .play-icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.35);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text);
+    font-size: 0;
+    position: relative;
+    z-index: 2;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .play-icon::after {
+    content: "";
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 13px;
+    border-color: transparent transparent transparent var(--text);
+    margin-left: 3px;
+  }
+  .work-media.hoverable:hover .play-icon {
+    border-color: var(--c1);
+    box-shadow: 0 0 18px rgba(242,169,59,0.4);
+    transform: scale(1.08);
+  }
+  .work-media.no-clip .play-icon { opacity: 0.35; cursor: default; }
+  .work-media.no-clip:hover .play-icon { border-color: rgba(255,255,255,0.3); box-shadow: none; transform: none; }
+  .no-clip-label {
+    position: absolute; bottom: 10px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-dim);
+  }
+  .work-media.is-playing .play-icon, .work-media.is-playing .no-clip-label { display: none; }
+  .work-body { padding: 18px 20px; }
+  .work-body h4 { font-size: 16.5px; font-weight: 700; margin-bottom: 6px; }
+  .work-body p { font-size: 13.5px; color: var(--text-dim); }
+
+  .avail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .avail-item { display: flex; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .avail-item:last-child { border-bottom: none; }
+  .avail-item span:first-child { color: var(--text-dim); }
+  .note-box {
+    border: 1px solid rgba(255,95,109,0.35);
+    background: rgba(255,95,109,0.06);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+  .note-box b { color: var(--danger); }
+
+  .contact-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .pill-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 14px 26px;
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .pill-btn.hoverable:hover { border-color: var(--c1); color: var(--c1); transform: translateY(-2px); }
+
+  footer {
+    padding: 40px 0 60px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    position: relative; z-index: 2;
+  }
+
+  #music-player {
+    position: fixed; bottom: 26px; left: 26px;
+    z-index: 60;
+    display: flex; align-items: center;
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    height: 48px;
+    overflow: hidden;
+    transition: width 0.35s ease, border-color 0.2s ease;
+    width: 48px;
+  }
+  #music-player.playing { border-color: var(--c2); box-shadow: 0 0 16px rgba(156,140,255,0.3); }
+  #music-player:hover { width: 280px; }
+  #music-toggle {
+    width: 48px; height: 48px; border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: none;
+  }
+  #music-toggle svg { width: 18px; height: 18px; stroke: var(--text-dim); }
+  #music-player.playing #music-toggle svg { stroke: var(--c2); }
+  #player-panel {
+    display: flex; align-items: center; gap: 10px;
+    padding-right: 16px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.25s ease 0.1s;
+    flex: 1;
+    min-width: 0;
+  }
+  #music-player:hover #player-panel { opacity: 1; }
+  #track-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+  }
+  #seek-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    position: relative;
+    cursor: pointer;
+    min-width: 60px;
+  }
+  #seek-fill {
+    position: absolute; top: 0; left: 0; height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--c1), var(--c3), var(--c2));
+    width: 0%;
+  }
+  #skip-btn {
+    background: none; border: none; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    cursor: none;
+  }
+  #skip-btn svg { width: 14px; height: 14px; stroke: var(--text-dim); }
+  #skip-btn:hover svg { stroke: var(--c1); }
+
+  @media (max-width: 720px) {
+    .expertise-grid, .work-grid, .avail-grid { grid-template-columns: 1fr; }
+    .navlinks { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001s !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<canvas id="rain-canvas"></canvas>
+
+<nav>
+  <div class="navwrap">
+    <div class="logo-dot mono hoverable">G</div>
+    <div class="navlinks">
+      <a href="#home" class="hoverable">Home</a>
+      <a href="#expertise" class="hoverable">Expertise</a>
+      <a href="#work" class="hoverable">Work</a>
+      <a href="#availability" class="hoverable">Availability</a>
+      <a href="#contact" class="hoverable">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="home">
+  <div class="wrap">
+    <div class="glow-title" style="font-size: clamp(32px, 6.5vw, 68px);">Gvbnjfhgjerhg | Discord Bot Dev</div>
+    <p class="sub">Discord Bot Developer. Moderation, permissions, &amp; persistent systems.<span class="cursor-blink"></span></p>
+    <p class="intro-line">Self-taught developer building moderation, ticketing, and verification systems for real Discord servers. Currently based in France, always learning something new.</p>
+  </div>
+</header>
+
+<section id="expertise">
+  <div class="wrap">
+    <div class="sec-title">EXPERTISE</div>
+    <div class="sec-underline"></div>
+
+    <div class="expertise-grid">
+      <div class="glow-card hoverable">
+        <h3>Capabilities</h3>
+        <div class="cap-row can"><span class="mark">✓</span><span><b>Can Do:</b> <span class="detail">Slash commands, persistent Views/Modals, permission &amp; role-hierarchy logic, moderation systems, ticket systems.</span></span></div>
+        <div class="cap-row decent"><span class="mark">~</span><span><b>Decent At:</b> <span class="detail">Async databases (aiosqlite), voice/music bots, webhook integrations.</span></span></div>
+        <div class="cap-row cannot"><span class="mark">✕</span><span><b>Not Focused On:</b> <span class="detail">Game engine dev (Roblox/Luau) — stepped back to specialize in Discord.</span></span></div>
+      </div>
+
+      <div class="glow-card hoverable">
+        <div class="tag-group">
+          <h3>Concepts &amp; Practices</h3>
+          <div class="tag-row">
+            <span class="tag-pill hoverable">OOP</span>
+            <span class="tag-pill hoverable">Async / Await</span>
+            <span class="tag-pill hoverable">REST APIs</span>
+            <span class="tag-pill hoverable">Role Hierarchy</span>
+            <span class="tag-pill hoverable">Cogs</span>
+          </div>
+        </div>
+        <div class="tag-group">
+          <h3>Stack</h3>
+          <div class="tag-row">
+            <span class="tag-pill hoverable">discord.py</span>
+            <span class="tag-pill hoverable">aiosqlite</span>
+            <span class="tag-pill hoverable">python-dotenv</span>
+            <span class="tag-pill hoverable">aiohttp</span>
+            <span class="tag-pill hoverable">Git</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><div class="line"></div><div class="dot"></div></div>
+
+<section id="work">
+  <div class="wrap">
+    <div class="sec-title">SELECTED WORK</div>
+    <div class="sec-underline"></div>
+
+    <div class="work-grid">
+      <div class="work-card hoverable">
+        <div class="work-media hoverable no-clip" data-video="">
+          <div class="play-icon"></div>
+          <div class="no-clip-label mono">no clip yet</div>
+        </div>
+        <div class="work-body">
+          <h4>Moderation Suite</h4>
+          <p>Ban / kick / mute / unban / unmute with role-hierarchy checks, audit logging, and a mod-log channel.</p>
+        </div>
+      </div>
+
+      <div class="work-card hoverable">
+        <div class="work-media hoverable no-clip" data-video="">
+          <div class="play-icon"></div>
+          <div class="no-clip-label mono">no clip yet</div>
+        </div>
+        <div class="work-body">
+          <h4>Ban Appeal System</h4>
+          <p>Modal-based appeal form with persistent Accept/Deny buttons, restart-proof via embed-stored state.</p>
+        </div>
+      </div>
+
+      <div class="work-card hoverable">
+        <div class="work-media hoverable" data-video="media/video/ticket-system.mp4">
+          <div class="play-icon"></div>
+        </div>
+        <div class="work-body">
+          <h4>Ticket System</h4>
+          <p>Per-user private channels with permission overwrites, duplicate prevention, and a close flow.</p>
+        </div>
+      </div>
+
+      <div class="work-card hoverable">
+        <div class="work-media hoverable no-clip" data-video="">
+          <div class="play-icon"></div>
+          <div class="no-clip-label mono">no clip yet</div>
+        </div>
+        <div class="work-body">
+          <h4>Self-Service Verification</h4>
+          <p>Persistent Verify/Unverify panel using fixed custom_ids — survives bot restarts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><div class="line"></div><div class="dot"></div></div>
+
+<section id="availability">
+  <div class="wrap">
+    <div class="sec-title">AVAILABILITY</div>
+    <div class="sec-underline"></div>
+
+    <div class="avail-grid">
+      <div class="glow-card hoverable">
+        <h3>Process</h3>
+        <div class="avail-item"><span>Scope discussed</span><span>DM / Portfolio Server</span></div>
+        <div class="avail-item"><span>Turnaround</span><span>Depends on scope</span></div>
+        <div class="avail-item"><span>Testing</span><span>A complete test is done before delivery</span></div>
+      </div>
+      <div class="glow-card hoverable">
+        <h3>Currently</h3>
+        <div class="avail-item"><span>Status</span><span style="color: var(--ok)">Open to small projects</span></div>
+        <div class="avail-item"><span>Best for</span><span>Moderation / utility bots</span></div>
+        <div class="avail-item"><span>Response time</span><span>Within a few hours</span></div>
+      </div>
+    </div>
+
+    <div class="note-box">
+      <b>Note:</b> Still learning &amp; building. Happy to take on smaller projects that match my current skill set, described honestly upfront.
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"><div class="line"></div><div class="dot"></div></div>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="sec-title">CONTACT</div>
+    <div class="sec-underline"></div>
+    <div class="contact-row">
+      <a href="#" class="pill-btn hoverable">DISCORD</a>
+      <a href="#" class="pill-btn hoverable">GITHUB</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">gvbnjfhgjerhg | built by hand. | © gv 2026</div>
+</footer>
+
+<div id="music-player">
+  <button id="music-toggle" class="hoverable">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18V5l12-2v13"></path>
+      <circle cx="6" cy="18" r="3"></circle>
+      <circle cx="18" cy="16" r="3"></circle>
+    </svg>
+  </button>
+  <div id="player-panel">
+    <span id="track-name" class="mono">track1</span>
+    <div id="seek-bar" class="hoverable"><div id="seek-fill"></div></div>
+    <button id="skip-btn" class="hoverable" title="Next track">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 4 15 12 5 20 5 4"></polygon>
+        <line x1="19" y1="5" x2="19" y2="19"></line>
+      </svg>
+    </button>
+  </div>
+</div>
+<audio id="audio-el" preload="metadata"></audio>
+
+<script>
+const dot = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+window.addEventListener('mousemove', (e) => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx + 'px';
+  dot.style.top = my + 'px';
+});
+
+function animateRing() {
+  rx += (mx - rx) * 0.18;
+  ry += (my - ry) * 0.18;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('.hoverable').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.classList.add('active'));
+  el.addEventListener('mouseleave', () => ring.classList.remove('active'));
+});
+
+const canvas = document.getElementById('rain-canvas');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+const glyphs = ['{','}','(',')','<','>','/','#','async','await','def','=>','::','0','1','py'];
+const hues = [38, 265, 175];
+const cols = Math.floor(window.innerWidth / 24);
+const rowsPerCol = 5;
+const drops = [];
+for (let i = 0; i < cols; i++) {
+  for (let r = 0; r < rowsPerCol; r++) {
+    drops.push({
+      col: i,
+      y: (r / rowsPerCol) * window.innerHeight + Math.random() * 100 - window.innerHeight,
+      speed: 1.4 + Math.random() * 2.2,
+      glyph: glyphs[Math.floor(Math.random() * glyphs.length)],
+      hue: hues[Math.floor(Math.random() * hues.length)],
+      huePhase: Math.random() * Math.PI * 2,
+      size: 13 + Math.random() * 8
+    });
+  }
+}
+
+function drawRain(time) {
+  ctx.clearRect(0, 0, W, H);
+  drops.forEach((d) => {
+    const pulse = Math.sin(time * 0.0015 + d.huePhase) * 0.5 + 0.5;
+    const lightness = 55 + pulse * 20;
+    ctx.fillStyle = `hsla(${d.hue}, 90%, ${lightness}%, 0.9)`;
+    ctx.shadowColor = `hsla(${d.hue}, 90%, 60%, 0.6)`;
+    ctx.shadowBlur = 6;
+    ctx.font = d.size + 'px "JetBrains Mono", monospace';
+    ctx.fillText(d.glyph, d.col * 24 + 6, d.y);
+    d.y += d.speed;
+    if (d.y > H + 20) {
+      d.y = Math.random() * -150;
+      d.glyph = glyphs[Math.floor(Math.random() * glyphs.length)];
+      d.hue = hues[Math.floor(Math.random() * hues.length)];
+    }
+  });
+  ctx.shadowBlur = 0;
+  requestAnimationFrame(drawRain);
+}
+requestAnimationFrame(drawRain);
+
+const playlist = [
+  { src: 'media/audio/track1.mp3', name: 'track1' },
+  { src: 'media/audio/track2.mp3', name: 'track2' },
+  { src: 'media/audio/track3.mp3', name: 'track3' }
+];
+let trackIndex = 0;
+let playing = false;
+
+const audioEl = document.getElementById('audio-el');
+const playerEl = document.getElementById('music-player');
+const musicBtn = document.getElementById('music-toggle');
+const trackNameEl = document.getElementById('track-name');
+const seekBar = document.getElementById('seek-bar');
+const seekFill = document.getElementById('seek-fill');
+const skipBtn = document.getElementById('skip-btn');
+
+function loadTrack(i, autoplay) {
+  trackIndex = (i + playlist.length) % playlist.length;
+  audioEl.src = playlist[trackIndex].src;
+  trackNameEl.textContent = playlist[trackIndex].name;
+  seekFill.style.width = '0%';
+  if (autoplay) audioEl.play().catch(() => {});
+}
+
+document.querySelectorAll('.work-media').forEach((mediaEl) => {
+  mediaEl.addEventListener('click', () => {
+    const src = mediaEl.getAttribute('data-video');
+    if (!src) return;
+    if (mediaEl.classList.contains('is-playing')) return;
+
+    const video = document.createElement('video');
+    video.src = src;
+    video.controls = true;
+    video.autoplay = true;
+    mediaEl.classList.add('is-playing');
+    mediaEl.appendChild(video);
+  });
+});
+
+loadTrack(0, false);
+
+musicBtn.addEventListener('click', () => {
+  if (!playing) {
+    audioEl.play().catch(() => {});
+  } else {
+    audioEl.pause();
+  }
+});
+
+audioEl.addEventListener('play', () => { playing = true; playerEl.classList.add('playing'); });
+audioEl.addEventListener('pause', () => { playing = false; playerEl.classList.remove('playing'); });
+
+audioEl.addEventListener('timeupdate', () => {
+  if (audioEl.duration) {
+    seekFill.style.width = (audioEl.currentTime / audioEl.duration * 100) + '%';
+  }
+});
+
+audioEl.addEventListener('ended', () => {
+  loadTrack(trackIndex + 1, true);
+});
+
+skipBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const wasPlaying = playing;
+  loadTrack(trackIndex + 1, wasPlaying);
+});
+
+function seekTo(clientX) {
+  const rect = seekBar.getBoundingClientRect();
+  const ratio = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+  if (audioEl.duration) {
+    audioEl.currentTime = ratio * audioEl.duration;
+    seekFill.style.width = (ratio * 100) + '%';
+  }
+}
+let dragging = false;
+seekBar.addEventListener('mousedown', (e) => { dragging = true; seekTo(e.clientX); });
+window.addEventListener('mousemove', (e) => { if (dragging) seekTo(e.clientX); });
+window.addEventListener('mouseup', () => { dragging = false; });
+</script>
+
+</body>
+</html>
