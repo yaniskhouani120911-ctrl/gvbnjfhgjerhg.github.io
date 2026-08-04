@@ -272,7 +272,7 @@
     position: relative;
     overflow: hidden;
   }
-  .work-media img, .work-media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .work-media img, .work-media video, .work-media iframe { width: 100%; height: 100%; object-fit: cover; display: block; border: none; }
   .play-icon {
     width: 56px; height: 56px; border-radius: 50%;
     border: 1.5px solid rgba(255,255,255,0.3);
@@ -321,6 +321,8 @@
     pointer-events: none;
   }
   .work-media .play-icon, .work-media .no-clip-label { z-index: 2; }
+  .work-media.is-gif .play-icon, .work-media.is-gif .no-clip-label,
+  .work-media.is-gif::after { display: none; } /* gifs autoplay — no play button or dark overlay needed */
   .work-media.is-playing .play-icon, .work-media.is-playing .no-clip-label { display: none; }
   .work-media.is-playing .video-thumb, .work-media.is-playing::after { display: none; }
   .work-body { padding: 18px 20px; }
@@ -513,7 +515,7 @@
 
     <div class="work-grid">
       <div class="work-card hoverable">
-        <div class="work-media hoverable no-clip" data-video="">
+        <div class="work-media hoverable no-clip" data-youtube="" data-gif="">
           <div class="play-icon"></div>
           <div class="no-clip-label mono">no clip yet</div>
         </div>
@@ -524,7 +526,7 @@
       </div>
 
       <div class="work-card hoverable">
-        <div class="work-media hoverable no-clip" data-video="">
+        <div class="work-media hoverable no-clip" data-youtube="" data-gif="">
           <div class="play-icon"></div>
           <div class="no-clip-label mono">no clip yet</div>
         </div>
@@ -535,8 +537,9 @@
       </div>
 
       <div class="work-card hoverable">
-        <div class="work-media hoverable" data-video="media/video/ticket-system.mp4">
+        <div class="work-media hoverable no-clip" data-youtube="" data-gif="">
           <div class="play-icon"></div>
+          <div class="no-clip-label mono">no clip yet</div>
         </div>
         <div class="work-body">
           <h4>Ticket System</h4>
@@ -545,8 +548,9 @@
       </div>
 
       <div class="work-card hoverable">
-        <div class="work-media hoverable" data-video="media/video/verify-system.mp4">
+        <div class="work-media hoverable no-clip" data-youtube="" data-gif="">
           <div class="play-icon"></div>
+          <div class="no-clip-label mono">no clip yet</div>
         </div>
         <div class="work-body">
           <h4>Self-Service Verification</h4>
@@ -720,50 +724,50 @@ function loadTrack(i, autoplay) {
   if (autoplay) audioEl.play().catch((err) => { console.error('Audio play failed:', err); });
 }
 
-document.querySelectorAll('.work-media[data-video]').forEach((mediaEl) => {
-  const thumbSrc = mediaEl.getAttribute('data-video');
-  if (!thumbSrc) return;
+/* ---------- GIF PROJECT PREVIEWS (simplest option — just autoplays, no click needed) ---------- */
+document.querySelectorAll('.work-media[data-gif]').forEach((mediaEl) => {
+  const gifSrc = mediaEl.getAttribute('data-gif');
+  if (!gifSrc) return;
 
-  const thumb = document.createElement('video');
-  thumb.src = thumbSrc;
-  thumb.muted = true;
-  thumb.playsInline = true;
-  thumb.preload = 'auto'; // 'metadata' alone often leaves the frame undecoded/blank
+  const img = document.createElement('img');
+  img.src = gifSrc;
+  img.alt = '';
+  mediaEl.classList.add('is-gif');
+  mediaEl.classList.remove('no-clip');
+  mediaEl.insertBefore(img, mediaEl.firstChild);
+});
+
+/* ---------- YOUTUBE-BACKED PROJECT CLIPS ---------- */
+// thumbnail: YouTube gives us a free thumbnail image, no frame-grabbing needed
+document.querySelectorAll('.work-media[data-youtube]').forEach((mediaEl) => {
+  const videoId = mediaEl.getAttribute('data-youtube');
+  if (!videoId) return;
+
+  const thumb = document.createElement('img');
+  thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  thumb.alt = '';
   thumb.classList.add('video-thumb');
-
-  thumb.addEventListener('loadeddata', () => {
-    thumb.currentTime = Math.min(1.2, (thumb.duration || 2) / 2);
-  });
-
-  // some browsers won't actually paint a frame after a bare seek —
-  // a very brief play+pause forces the frame to decode and render
-  thumb.addEventListener('seeked', () => {
-    const playPromise = thumb.play();
-    if (playPromise) {
-      playPromise.then(() => {
-        requestAnimationFrame(() => thumb.pause());
-      }).catch(() => {});
-    }
-  }, { once: true });
-
   mediaEl.insertBefore(thumb, mediaEl.firstChild);
 });
 
+// click: swap the thumbnail for a real embedded YouTube player
 document.querySelectorAll('.work-media').forEach((mediaEl) => {
   mediaEl.addEventListener('click', () => {
-    const src = mediaEl.getAttribute('data-video');
-    if (!src) return;
+    const videoId = mediaEl.getAttribute('data-youtube');
+    if (!videoId) return; // no clip uploaded yet for this project
     if (mediaEl.classList.contains('is-playing')) return;
 
     const oldThumb = mediaEl.querySelector('.video-thumb');
     if (oldThumb) oldThumb.remove();
 
-    const video = document.createElement('video');
-    video.src = src;
-    video.controls = true;
-    video.autoplay = true;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+    iframe.title = 'Project demo video';
+    iframe.frameBorder = '0';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
     mediaEl.classList.add('is-playing');
-    mediaEl.appendChild(video);
+    mediaEl.appendChild(iframe);
   });
 });
 
