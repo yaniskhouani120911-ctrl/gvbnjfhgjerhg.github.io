@@ -729,12 +729,23 @@ document.querySelectorAll('.work-media[data-video]').forEach((mediaEl) => {
   thumb.src = thumbSrc;
   thumb.muted = true;
   thumb.playsInline = true;
-  thumb.preload = 'metadata';
+  thumb.preload = 'auto'; // 'metadata' alone often leaves the frame undecoded/blank
   thumb.classList.add('video-thumb');
 
-  thumb.addEventListener('loadedmetadata', () => {
+  thumb.addEventListener('loadeddata', () => {
     thumb.currentTime = Math.min(1.2, (thumb.duration || 2) / 2);
   });
+
+  // some browsers won't actually paint a frame after a bare seek —
+  // a very brief play+pause forces the frame to decode and render
+  thumb.addEventListener('seeked', () => {
+    const playPromise = thumb.play();
+    if (playPromise) {
+      playPromise.then(() => {
+        requestAnimationFrame(() => thumb.pause());
+      }).catch(() => {});
+    }
+  }, { once: true });
 
   mediaEl.insertBefore(thumb, mediaEl.firstChild);
 });
