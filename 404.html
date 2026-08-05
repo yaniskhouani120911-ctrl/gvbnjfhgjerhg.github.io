@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — gvbnjfhgjerhg</title>
+<link rel="icon" type="image/png" href="media/img/pfp.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Sora:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #060708;
+    --border: #24272d;
+    --text: #ECEDEF;
+    --text-dim: #8A8F98;
+    --c1: #F2A93B;
+    --c2: #9C8CFF;
+    --c3: #57D2C7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes rotate-angle { to { --angle: 360deg; } }
+
+  .avatar-wrap {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    padding: 3px;
+    background: conic-gradient(from var(--angle, 0deg), var(--c1), var(--c3), var(--c2), var(--c1));
+    animation: rotate-angle 4s linear infinite;
+    margin-bottom: 28px;
+  }
+  .avatar-wrap img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 3px solid var(--bg);
+  }
+
+  .code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    color: var(--c1);
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 14px;
+  }
+  p {
+    color: var(--text-dim);
+    font-size: 15px;
+    max-width: 420px;
+    margin-bottom: 32px;
+  }
+  a.home-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 13px 26px;
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  a.home-btn:hover { border-color: var(--c1); color: var(--c1); transform: translateY(-2px); }
+</style>
+</head>
+<body>
+
+  <div class="avatar-wrap">
+    <img src="media/img/pfp.png" alt="gvbnjfhgjerhg">
+  </div>
+  <div class="code mono">404</div>
+  <h1>This page wandered off.</h1>
+  <p>Whatever you were looking for isn't here — maybe it moved, or the link's a little off. Let's get you back.</p>
+  <a href="/" class="home-btn">Back to the portfolio</a>
+
+</body>
+</html>
