@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>gvbnjfhgjerhg — Discord Bot Developer</title>
+<link rel="icon" type="image/png" href="media/img/pfp.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Sora:wght@400;500;600;700;800&display=swap');
 
@@ -101,11 +102,30 @@
     border: 1.5px solid var(--border);
     display: flex; align-items: center; justify-content: center;
     font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.2s ease;
   }
+  .logo-dot:hover { border-color: var(--c1); transform: scale(1.08); }
+  .logo-dot img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .navlinks { display: flex; gap: 34px; font-size: 13px; letter-spacing: 0.5px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
   .navlinks a.hoverable:hover { color: var(--text); }
 
   .hero { padding: 130px 0 90px; position: relative; z-index: 2; }
+  .hero-avatar-wrap {
+    width: 108px; height: 108px;
+    border-radius: 50%;
+    padding: 3px;
+    background: conic-gradient(from var(--angle, 0deg), var(--c1), var(--c3), var(--c2), var(--c1));
+    animation: rotate-angle 4s linear infinite;
+    margin-bottom: 26px;
+  }
+  .hero-avatar-wrap img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 3px solid var(--bg);
+  }
   .glow-title {
     font-family: 'Sora', sans-serif;
     font-weight: 800;
@@ -373,6 +393,13 @@
   .avail-item { display: flex; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
   .avail-item:last-child { border-bottom: none; }
   .avail-item span:first-child { color: var(--text-dim); }
+  .status-badge { display: flex; align-items: center; gap: 8px; }
+  .status-badge img {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--ok);
+  }
   .note-box {
     border: 1px solid rgba(255,95,109,0.35);
     background: rgba(255,95,109,0.06);
@@ -383,6 +410,21 @@
   }
   .note-box b { color: var(--danger); }
 
+  .contact-avatar-wrap {
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    padding: 3px;
+    background: conic-gradient(from var(--angle, 0deg), var(--c1), var(--c3), var(--c2), var(--c1));
+    animation: rotate-angle 4s linear infinite;
+    margin-bottom: 24px;
+  }
+  .contact-avatar-wrap img {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 3px solid var(--bg);
+  }
   .contact-row { display: flex; gap: 14px; flex-wrap: wrap; }
   .pill-btn {
     font-family: 'JetBrains Mono', monospace;
@@ -401,6 +443,18 @@
     font-size: 12px;
     color: var(--text-dim);
     position: relative; z-index: 2;
+  }
+  .footer-signature {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .footer-signature img {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
   }
 
   #music-player {
@@ -427,6 +481,14 @@
   }
   #music-toggle svg { width: 18px; height: 18px; stroke: var(--text-dim); }
   #music-player.playing #music-toggle svg { stroke: var(--c2); }
+  #music-toggle img {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid var(--border);
+    transition: border-color 0.2s ease;
+  }
+  #music-player.playing #music-toggle img { border-color: var(--c2); }
   #player-panel {
     display: flex; align-items: center; gap: 10px;
     padding-right: 16px;
@@ -488,7 +550,7 @@
 
 <nav>
   <div class="navwrap">
-    <div class="logo-dot mono hoverable">G</div>
+    <div class="logo-dot hoverable"><img src="media/img/pfp.png" alt="gvbnjfhgjerhg"></div>
     <div class="navlinks">
       <a href="#home" class="hoverable">Home</a>
       <a href="#expertise" class="hoverable">Expertise</a>
@@ -501,6 +563,9 @@
 
 <header class="hero" id="home">
   <div class="wrap">
+    <div class="hero-avatar-wrap">
+      <img src="media/img/pfp.png" alt="gvbnjfhgjerhg">
+    </div>
     <div class="glow-title" style="font-size: clamp(32px, 6.5vw, 68px);">Gvbnjfhgjerhg | Discord Bot Dev</div>
     <p class="sub">Discord Bot Developer. Moderation, permissions, &amp; persistent systems.<span class="cursor-blink"></span></p>
     <p class="intro-line">Self-taught developer building moderation, ticketing, and verification systems for real Discord servers. Currently based in France, always learning something new.</p>
@@ -617,7 +682,7 @@
       </div>
       <div class="glow-card hoverable">
         <h3>Currently</h3>
-        <div class="avail-item"><span>Status</span><span style="color: var(--ok)">Open to small projects</span></div>
+        <div class="avail-item"><span>Status</span><span class="status-badge"><img src="media/img/pfp.png" alt=""><span style="color: var(--ok)">Open to small projects</span></span></div>
         <div class="avail-item"><span>Best for</span><span>Moderation / utility bots</span></div>
         <div class="avail-item"><span>Response time</span><span>Within a few hours</span></div>
       </div>
@@ -635,24 +700,26 @@
   <div class="wrap">
     <div class="sec-title">CONTACT</div>
     <div class="sec-underline"></div>
+    <div class="contact-avatar-wrap">
+      <img src="media/img/pfp.png" alt="gvbnjfhgjerhg">
+    </div>
     <div class="contact-row">
-      <a href="https://discord.gg/v6vZWjusT" class="pill-btn hoverable">DISCORD SERVER</a>
-      <a href="https://www.roblox.com/users/2030186803/profile" class="pill-btn hoverable">ROBLOX PROFILE</a>
+      <a href="#" class="pill-btn hoverable">DISCORD</a>
+      <a href="#" class="pill-btn hoverable">GITHUB</a>
     </div>
   </div>
 </section>
 
 <footer>
-  <div class="wrap">gvbnjfhgjerhg | built by hand. | © gv 2026</div>
+  <div class="wrap footer-signature">
+    <img src="media/img/pfp.png" alt="gvbnjfhgjerhg">
+    gvbnjfhgjerhg | built by hand. | © gv 2026
+  </div>
 </footer>
 
 <div id="music-player">
   <button id="music-toggle" class="hoverable">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M9 18V5l12-2v13"></path>
-      <circle cx="6" cy="18" r="3"></circle>
-      <circle cx="18" cy="16" r="3"></circle>
-    </svg>
+    <img src="media/img/pfp.png" alt="">
   </button>
   <div id="player-panel">
     <span id="track-name" class="mono">track1</span>
@@ -797,7 +864,6 @@ document.querySelectorAll('.work-media[data-gif]').forEach((mediaEl) => {
   mediaEl.classList.remove('no-clip');
   mediaEl.insertBefore(img, mediaEl.firstChild);
 
-  // click the card to view the gif zoomed in, in a lightbox
   mediaEl.addEventListener('click', () => {
     lightboxImg.src = gifSrc;
     lightboxOverlay.classList.add('open');
@@ -805,7 +871,6 @@ document.querySelectorAll('.work-media[data-gif]').forEach((mediaEl) => {
 });
 
 /* ---------- YOUTUBE-BACKED PROJECT CLIPS ---------- */
-// thumbnail: YouTube gives us a free thumbnail image, no frame-grabbing needed
 document.querySelectorAll('.work-media[data-youtube]').forEach((mediaEl) => {
   const videoId = mediaEl.getAttribute('data-youtube');
   if (!videoId) return;
@@ -817,13 +882,12 @@ document.querySelectorAll('.work-media[data-youtube]').forEach((mediaEl) => {
   mediaEl.insertBefore(thumb, mediaEl.firstChild);
 });
 
-// click: swap the thumbnail for a real embedded YouTube player
 document.querySelectorAll('.work-media').forEach((mediaEl) => {
   mediaEl.addEventListener('click', () => {
     const videoId = mediaEl.getAttribute('data-youtube');
-    if (!videoId) return; // no clip uploaded yet for this project
+    if (!videoId) return;
     if (mediaEl.classList.contains('is-playing')) return;
-    if (mediaEl.classList.contains('is-gif')) return; // gif cards use the lightbox instead
+    if (mediaEl.classList.contains('is-gif')) return;
 
     const oldThumb = mediaEl.querySelector('.video-thumb');
     if (oldThumb) oldThumb.remove();
@@ -839,12 +903,9 @@ document.querySelectorAll('.work-media').forEach((mediaEl) => {
   });
 });
 
-audioEl.volume = 0.22; // keep it ambient/background, not center-stage
+audioEl.volume = 0.22;
 loadTrack(0, false);
 
-// Browsers block audio autoplay on page load — start music on the
-// visitor's very first click anywhere on the page instead, so it
-// feels automatic without violating autoplay policy.
 document.addEventListener('click', function startOnFirstClick() {
   if (!playing) {
     audioEl.play().catch((err) => { console.error('Audio play failed:', err); });
